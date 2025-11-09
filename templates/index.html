@@ -1,22 +1,29 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Tabel Biner — ASCII</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tabel ASCII & Konversi</title>
 
-  <!-- Bootstrap -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
-  <style>
-    body { padding: 32px; }
-    .char-cell { font-family: "Courier New", monospace; font-size: 20px; }
+<style>
+    body { padding: 30px; }
+    .char-cell { font-family: "Courier New", monospace; font-size: 20px; font-weight: bold; }
 
-    /* ✅ Supaya tabel tidak terpotong saat dicetak PDF */
+    pre {
+        background: #f8f8f8;
+        padding: 12px;
+        border-radius: 6px;
+        white-space: pre-wrap;
+        font-size: 14px;
+    }
+
+    /* ✅ PDF */
     @media print {
         #non-print { display: none !important; }
 
-        .print-table {
+        .print-section {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
             margin-bottom: 40px;
@@ -26,230 +33,227 @@
             page-break-before: always;
         }
 
-        /* Halaman pertama tidak perlu page-break */
         h4:first-of-type {
-            page-break-before: auto;
+            page-break-before: auto !important;
         }
     }
-  </style>
+</style>
 </head>
 
 <body>
+
 <div class="container">
 
-  <h1 class="mb-4"><center>Tabel Biner (ASCII - American Standard Code for Information Interchange)</center></h1>
+    <h2 class="text-center mb-4">
+        Tabel ASCII + Konversi<br>
+        <small>(Decimal, Binary, Hex, serta Langkah Perhitungan)</small>
+    </h2>
 
-  <!-- ✅ Bagian yang tidak dicetak -->
-  <div id="non-print">
+    <!-- ===========================
+         FORM INPUT (tidak dicetak)
+         =========================== -->
+    <div id="non-print">
+        <div class="card mb-4">
+            <div class="card-body">
 
-    <!-- Form konversi -->
-    <div class="card mb-4">
-      <div class="card-body">
-        <form method="post" class="form-inline">
-          <div class="form-group mr-2">
-            <label for="input_text" class="sr-only">Teks</label>
-            <input id="input_text" name="input_text" class="form-control"
-                   placeholder="Masukkan teks untuk dikonversi"
-                   value="{{ input_text }}">
-          </div>
-          <button type="submit" class="btn btn-primary mr-2">Konversi</button>
-          <button type="button" class="btn btn-secondary"
-                  onclick="document.getElementById('input_text').value='';">
-            Bersihkan
-          </button>
-        </form>
+                <form method="POST" class="form-inline">
+                    <input type="text" name="input_text" id="input_text"
+                           value="{{ input_text }}"
+                           class="form-control mr-2"
+                           placeholder="Masukkan teks...">
 
-        {% if converted %}
-        <hr>
-        <h5>Hasil Konversi</h5>
-        <table class="table table-sm table-bordered">
-          <thead>
-            <tr>
-              <th>Karakter</th>
-              <th>Decimal</th>
-              <th>Binary</th>
-              <th>Hex</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for e in converted %}
-            <tr>
-              <td class="char-cell">{{ e.char.replace(' ', '␣') }}</td>
-              <td>{{ e.decimal }}</td>
-              <td><code>{{ e.binary }}</code></td>
-              <td>{{ e.hex }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% endif %}
-      </div>
+                    <button class="btn btn-primary mr-2">Konversi</button>
+
+                    <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('input_text').value=''">
+                        Bersihkan
+                    </button>
+                </form>
+
+                {% if converted %}
+                <hr>
+                <h4>Hasil Konversi</h4>
+
+                <table class="table table-bordered table-sm">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Karakter</th>
+                            <th>Decimal</th>
+                            <th>Binary</th>
+                            <th>Hex</th>
+                            <th width="30%">Langkah Perhitungan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in converted %}
+                        <tr>
+                            <td class="char-cell">{{ e.char.replace(" ", "␣") }}</td>
+                            <td>{{ e.decimal }}</td>
+                            <td><code>{{ e.binary }}</code></td>
+                            <td>{{ e.hex }}</td>
+                            <td>
+                                <b>Decimal → Binary</b><br>
+                                <pre>{{ e.calc_binary }}</pre>
+
+                                <b>Decimal → Hex</b><br>
+                                <pre>{{ e.calc_hex }}</pre>
+
+                                <b>Hex → Decimal</b><br>
+                                <pre>{{ e.calc_hex_to_dec }}</pre>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+
+            </div>
+        </div>
+
+        <button class="btn btn-danger mb-4" onclick="window.print()">
+            Cetak PDF (Tabel ASCII)
+        </button>
     </div>
 
-    <!-- ✅ Tombol Cetak -->
-    <button class="btn btn-danger mb-4" onclick="printBinaryTable()">
-      Cetak Tabel ASCII (PDF)
-    </button>
-  </div>
 
+    <!-- ===========================
+         TABEL ASCII (untuk dicetak)
+         =========================== -->
 
-  <!-- ✅ Bagian tabel ASCII untuk dicetak -->
-  <div id="ascii-table-section">
+    <h3 class="mt-4">Tabel ASCII</h3>
 
-    <!-- ✅ Uppercase A–M & N–Z berdampingan -->
+    <!-- UPPERCASE -->
     <h4>Uppercase Alphabet</h4>
     <div class="row">
 
-      <!-- A–M -->
-      <div class="col-md-6">
-        <h5>A – M</h5>
-        <div class="table-responsive print-table">
-          <table class="table table-sm table-striped table-bordered">
-            <thead class="thead-dark">
-              <tr><th>Char</th><th>Dec</th><th>Binary</th><th>Hex</th></tr>
-            </thead>
-            <tbody>
-              {% for r in sections['Uppercase A–M'] %}
-              <tr>
-                <td class="char-cell">{{ r.char }}</td>
-                <td>{{ r.decimal }}</td>
-                <td><code>{{ r.binary }}</code></td>
-                <td>{{ r.hex }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+        <div class="col-md-6 print-section">
+            <h5>A – M</h5>
+            <table class="table table-bordered table-sm">
+                <thead class="thead-dark">
+                <tr><th>Char</th><th>Dec</th><th>Binary</th><th>Hex</th></tr>
+                </thead>
+                <tbody>
+                {% for r in sections["Uppercase A–M"] %}
+                <tr>
+                    <td class="char-cell">{{ r.char }}</td>
+                    <td>{{ r.decimal }}</td>
+                    <td><code>{{ r.binary }}</code></td>
+                    <td>{{ r.hex }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
-      </div>
 
-      <!-- N–Z -->
-      <div class="col-md-6">
-        <h5>N – Z</h5>
-        <div class="table-responsive print-table">
-          <table class="table table-sm table-striped table-bordered">
-            <thead class="thead-dark">
-              <tr><th>Char</th><th>Dec</th><th>Binary</th><th>Hex</th></tr>
-            </thead>
-            <tbody>
-              {% for r in sections['Uppercase N–Z'] %}
-              <tr>
-                <td class="char-cell">{{ r.char }}</td>
-                <td>{{ r.decimal }}</td>
-                <td><code>{{ r.binary }}</code></td>
-                <td>{{ r.hex }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+        <div class="col-md-6 print-section">
+            <h5>N – Z</h5>
+            <table class="table table-bordered table-sm">
+                <thead class="thead-dark">
+                <tr><th>Char</th><th>Dec</th><th>Binary</th><th>Hex</th></tr>
+                </thead>
+                <tbody>
+                {% for r in sections["Uppercase N–Z"] %}
+                <tr>
+                    <td class="char-cell">{{ r.char }}</td>
+                    <td>{{ r.decimal }}</td>
+                    <td><code>{{ r.binary }}</code></td>
+                    <td>{{ r.hex }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
-      </div>
 
     </div>
 
 
-
-    <!-- ✅ Lowercase a–m & n–z berdampingan -->
-    <h4 class="mt-5">Lowercase Alphabet</h4>
+    <!-- LOWERCASE -->
+    <h4>Lowercase Alphabet</h4>
     <div class="row">
 
-      <!-- a–m -->
-      <div class="col-md-6">
-        <h5>a – m</h5>
-        <div class="table-responsive print-table">
-          <table class="table table-sm table-striped table-bordered">
+        <div class="col-md-6 print-section">
+            <h5>a – m</h5>
+            <table class="table table-bordered table-sm">
+                <thead class="thead-dark">
+                <tr><th>Char</th><th>Dec</th><th>Binary</th><th>Hex</th></tr>
+                </thead>
+                <tbody>
+                {% for r in sections["Lowercase a–m"] %}
+                <tr>
+                    <td class="char-cell">{{ r.char }}</td>
+                    <td>{{ r.decimal }}</td>
+                    <td><code>{{ r.binary }}</code></td>
+                    <td>{{ r.hex }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-md-6 print-section">
+            <h5>n – z</h5>
+            <table class="table table-bordered table-sm">
+                <thead class="thead-dark">
+                <tr><th>Char</th><th>Dec</th><th>Binary</th><th>Hex</th></tr>
+                </thead>
+                <tbody>
+                {% for r in sections["Lowercase n–z"] %}
+                <tr>
+                    <td class="char-cell">{{ r.char }}</td>
+                    <td>{{ r.decimal }}</td>
+                    <td><code>{{ r.binary }}</code></td>
+                    <td>{{ r.hex }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+
+    <!-- DIGITS -->
+    <h4>Digits (0 – 9)</h4>
+    <div class="print-section">
+        <table class="table table-bordered table-sm">
             <thead class="thead-dark">
-              <tr><th>Char</th><th>Dec</th><th>Binary</th><th>Hex</th></tr>
+                <tr><th>Char</th><th>Dec</th><th>Binary</th><th>Hex</th></tr>
             </thead>
             <tbody>
-              {% for r in sections['Lowercase a–m'] %}
-              <tr>
+            {% for r in sections["Digits (0-9)"] %}
+            <tr>
                 <td class="char-cell">{{ r.char }}</td>
                 <td>{{ r.decimal }}</td>
                 <td><code>{{ r.binary }}</code></td>
                 <td>{{ r.hex }}</td>
-              </tr>
-              {% endfor %}
+            </tr>
+            {% endfor %}
             </tbody>
-          </table>
-        </div>
-      </div>
+        </table>
+    </div>
 
-      <!-- n–z -->
-      <div class="col-md-6">
-        <h5>n – z</h5>
-        <div class="table-responsive print-table">
-          <table class="table table-sm table-striped table-bordered">
+
+    <!-- SYMBOLS -->
+    <h4>Punctuation & Symbols</h4>
+    <div class="print-section">
+        <table class="table table-bordered table-sm">
             <thead class="thead-dark">
-              <tr><th>Char</th><th>Dec</th><th>Binary</th><th>Hex</th></tr>
+                <tr><th>Char</th><th>Dec</th><th>Binary</th><th>Hex</th></tr>
             </thead>
             <tbody>
-              {% for r in sections['Lowercase n–z'] %}
-              <tr>
+            {% for r in sections["Punctuation & Symbols"] %}
+            <tr>
                 <td class="char-cell">{{ r.char }}</td>
                 <td>{{ r.decimal }}</td>
                 <td><code>{{ r.binary }}</code></td>
                 <td>{{ r.hex }}</td>
-              </tr>
-              {% endfor %}
+            </tr>
+            {% endfor %}
             </tbody>
-          </table>
-        </div>
-      </div>
-
+        </table>
     </div>
 
-
-
-    <!-- ✅ Digits -->
-    <h4 class="mt-5">Digits (0–9)</h4>
-    <div class="table-responsive print-table">
-      <table class="table table-sm table-striped table-bordered">
-        <thead class="thead-dark">
-          <tr><th>Char</th><th>Dec</th><th>Binary</th><th>Hex</th></tr>
-        </thead>
-        <tbody>
-          {% for r in sections['Digits (0-9)'] %}
-          <tr>
-            <td class="char-cell">{{ r.char }}</td>
-            <td>{{ r.decimal }}</td>
-            <td><code>{{ r.binary }}</code></td>
-            <td>{{ r.hex }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-
-    <!-- ✅ Symbols -->
-    <h4 class="mt-5">Punctuation & Symbols</h4>
-    <div class="table-responsive print-table">
-      <table class="table table-sm table-striped table-bordered">
-        <thead class="thead-dark">
-          <tr><th>Char</th><th>Dec</th><th>Binary</th><th>Hex</th></tr>
-        </thead>
-        <tbody>
-          {% for r in sections['Punctuation & Symbols'] %}
-          <tr>
-            <td class="char-cell">{{ r.char }}</td>
-            <td>{{ r.decimal }}</td>
-            <td><code>{{ r.binary }}</code></td>
-            <td>{{ r.hex }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-
-  </div>
 </div>
-
-<script>
-function printBinaryTable() {
-    window.print();
-}
-</script>
 
 </body>
 </html>
