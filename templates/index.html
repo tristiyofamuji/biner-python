@@ -21,20 +21,9 @@
 
     @media print {
         #non-print { display: none !important; }
-
-        .print-section {
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-            margin-bottom: 40px;
-        }
-
-        h4 {
-            page-break-before: always;
-        }
-
-        h4:first-of-type {
-            page-break-before: auto !important;
-        }
+        .print-section { page-break-inside: avoid !important; break-inside: avoid !important; margin-bottom: 40px; }
+        h4 { page-break-before: always; }
+        h4:first-of-type { page-break-before: auto !important; }
     }
 
     .formula-box {
@@ -53,6 +42,7 @@
         background: #f4f4f4;
         padding: 6px;
         border-radius: 4px;
+        vertical-align: middle;
     }
   </style>
 </head>
@@ -80,14 +70,12 @@
 
           <button type="submit" class="btn btn-primary mr-2">Konversi</button>
 
-          <!-- Note: type=button agar tidak submit -->
           <button type="button" class="btn btn-secondary" onclick="clearConversion()">
             Bersihkan
           </button>
         </form>
 
         {% if converted %}
-        <!-- wrap hasil konversi supaya mudah disembunyikan -->
         <div id="convert-section">
           <hr>
           <h5 class="mt-3">Hasil Konversi</h5>
@@ -95,7 +83,9 @@
           <div class="formula-box">
               <b>Rumus Umum:</b><br>
               Decimal → Binary : pembagian berulang ÷ 2<br>
+              Decimal → Octal  : pembagian berulang ÷ 8<br>
               Decimal → Hex    : pembagian berulang ÷ 16<br>
+              Octal → Decimal  : digit × 8ⁿ<br>
               Hex → Decimal    : digit × 16ⁿ
           </div>
 
@@ -105,6 +95,7 @@
                 <th>Karakter</th>
                 <th>Decimal</th>
                 <th>Binary</th>
+                <th>Octal</th>
                 <th>Hex</th>
                 <th>Perhitungan Detail</th>
               </tr>
@@ -115,17 +106,9 @@
                 <td class="char-cell">{{ e.char.replace(' ', '␣') }}</td>
                 <td>{{ e.decimal }}</td>
                 <td><code>{{ e.binary }}</code></td>
+                <td>{{ e.octal }}</td>
                 <td>{{ e.hex }}</td>
-                <td class="calc-detail">
-                  <b>Decimal → Binary</b>
-<pre>{{ e.calc_binary }}</pre>
-
-                  <b>Decimal → Hex</b>
-<pre>{{ e.calc_hex }}</pre>
-
-                  <b>Hex → Decimal</b>
-<pre>{{ e.calc_hex_to_dec }}</pre>
-                </td>
+                <td class="calc-detail"><b>Decimal → Binary</b><pre>{{ e.calc_binary }}</pre><b>Decimal → Octal</b><pre>{{ e.calc_octal }}</pre><b>Decimal → Hex</b><pre>{{ e.calc_hex }}</pre><b>Octal → Decimal</b><pre>{{ e.calc_octal_to_dec }}</pre><b>Hex → Decimal</b><pre>{{ e.calc_hex_to_dec }}</pre></td>
               </tr>
               {% endfor %}
             </tbody>
@@ -138,10 +121,10 @@
     <button class="btn btn-danger mb-4" onclick="printBinaryTable()">
       Cetak Tabel ASCII (PDF)
     </button>
-  </div> <!-- end non-print -->
+  </div>
 
 
-  <!-- ASCII tables for print -->
+  <!-- ASCII TABLES (FOR PRINT) -->
   <div id="ascii-table-section">
 
     <!-- Uppercase A–M & N–Z -->
@@ -276,9 +259,9 @@
       </table>
     </div>
 
-  </div> <!-- end ascii-table-section -->
+  </div>
 
-</div> <!-- end container -->
+</div>
 
 <script>
 function printBinaryTable() {
@@ -286,18 +269,11 @@ function printBinaryTable() {
 }
 
 function clearConversion() {
-    // kosongkan input
     const inp = document.getElementById('input_text');
     if (inp) inp.value = '';
 
-    // sembunyikan bagian hasil konversi jika ada
     const conv = document.getElementById('convert-section');
-    if (conv) {
-        conv.style.display = 'none';
-    }
-
-    // Jika Anda mau benar-benar reset server-side, uncomment baris berikut:
-    // window.location = window.location.pathname; // reload (GET) -> server akan merender tanpa hasil konversi
+    if (conv) conv.style.display = 'none';
 }
 </script>
 
